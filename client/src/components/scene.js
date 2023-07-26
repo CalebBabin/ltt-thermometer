@@ -36,7 +36,7 @@ const renderers = {
 		const d = new Date(data.value.date);
 
 		return <div className='my-4 mr-14 px-2 absolute overflow-visible whitespace-pre' style={{
-			top: (
+			bottom: (
 				(data.value.date - startDate) / minMaxDiff
 			) * 100 + '%',
 			right: '50%',
