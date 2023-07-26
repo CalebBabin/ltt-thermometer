@@ -1,0 +1,26 @@
+{
+	"name": "ltt-thermometer",
+	"version": "1.0.0",
+	"description": "Simple thermometer",
+	"dependencies": {},
+	"devDependencies": {},
+	"workspaces": [
+		"client",
+		"server"
+	],
+	"private": true,
+	"scripts": {
+		"dev": "(cd client && npm run dev) | (cd server && npm run dev)",
+		"start": "(cd client && npm run start) | (cd server && npm run start)"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/CalebBabin/ltt-thermometer.git"
+	},
+	"author": "",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/CalebBabin/ltt-thermometer/issues"
+	},
+	"homepage": "https://github.com/CalebBabin/ltt-thermometer#readme"
+}

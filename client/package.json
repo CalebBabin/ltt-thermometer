@@ -1,0 +1,29 @@
+{
+	"name": "ltt-thermometer",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "node generate-version.mjs && next dev",
+		"build": "node generate-version.mjs && next build",
+		"start": "node generate-version.mjs && next start",
+		"lint": "node generate-version.mjs && next lint"
+	},
+	"dependencies": {
+		"@emotion/react": "^11.10.5",
+		"@emotion/styled": "^11.10.5",
+		"@react-icons/all-files": "^4.1.0",
+		"next": "^13.1.6",
+		"pixi.js": "^7.2.4",
+		"prop-types": "^15.8.1",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0",
+		"react-icons": "^4.7.1",
+		"react-pixi-fiber": "^1.0.6",
+		"twemoji-parser": "^14.0.0"
+	},
+	"devDependencies": {
+		"autoprefixer": "^10.4.13",
+		"postcss": "^8.4.21",
+		"tailwindcss": "^3.2.4"
+	}
+}
