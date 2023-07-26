@@ -57,20 +57,62 @@ function connection(socket) {
 
 		// pass ID back to client so it can use promises to wait for responses
 
-		switch (event) {
-			case 'ping':
-				sendMessage("pong", { time: Date.now() });
-			case 'authenticate':
-				if (data.key) {
-					authenticate(item, data.key);
-					return;
+		if (event === 'check-in') {
+			return;
+		}
+		if (event === 'ping') {
+			sendMessage("pong", { time: Date.now() });
+		}
+		if (event === 'authenticate') {
+			if (data.key) {
+				authenticate(item, data.key);
+			}
+		}
+
+		if (event === "load") {
+			item.socket.send(JSON.stringify({
+				event: "load",
+				data: {
+					objects: objects,
+				},
+			}));
+		}
+
+		if (event === "update") {
+			for (const key in data) {
+				if (key === 'name' || key === 'value') {
+					if (key === 'value') {
+						if (!objects[data._id].value) objects[data._id].value = {};
+						for (const propKey in data[key]) {
+							objects[data._id][key][propKey] = data[key][propKey];
+						}
+					} else {
+						objects[data._id][key] = data[key];
+					}
 				}
-				break;
-			case 'check-in':
-				break;
-			default:
-				receive_message({ event, data }, item);
-				break;
+			}
+			changes[data._id] = objects[data._id];
+			dispatch("broadcast", { event: 'update', data: { ...data, lastUpdate: data.lastUpdate } });
+		}
+
+		if (event === "create") {
+			if (data.hasOwnProperty("_id")) delete data._id;
+			const object = new ObjectModel({
+				...data,
+			});
+			await object.save();
+			objects[object._id] = object;
+			dispatch("broadcast", { event: 'update', data: object });
+		}
+
+		if (event === "delete") {
+			if (objects[data._id]) {
+				await objects[data._id].destroy();
+				delete objects[data._id];
+
+				if (changes[data._id]) delete changes[data._id];
+			}
+			dispatch("broadcast", { event: 'delete', data: data._id });
 		}
 	});
 
@@ -144,56 +186,5 @@ function dispatch(event, data) {
 		for (let index = 0; index < callbacks_to_call.length; index++) {
 			callbacks_to_call[index](data);
 		}
-	}
-}
-
-async function receive_message(e, client) {
-	//if (client.restricted && e.event !== "load") return;
-
-	console.log(e);
-	if (e.event === "load") {
-		client.socket.send(JSON.stringify({
-			event: "load",
-			data: {
-				objects: objects,
-			},
-		}));
-	}
-
-	if (e.event === "update") {
-		for (const key in e.data) {
-			if (key === 'name' || key === 'value') {
-				if (key === 'value') {
-					if (!objects[e.data._id].value) objects[e.data._id].value = {};
-					for (const propKey in e.data[key]) {
-						objects[e.data._id][key][propKey] = e.data[key][propKey];
-					}
-				} else {
-					objects[e.data._id][key] = e.data[key];
-				}
-			}
-		}
-		changes[e.data._id] = objects[e.data._id];
-		dispatch("broadcast", { event: 'update', data: { ...e.data, lastUpdate: e.data.lastUpdate } });
-	}
-
-	if (e.event === "create") {
-		if (e.data.hasOwnProperty("_id")) delete e.data._id;
-		const object = new ObjectModel({
-			...e.data,
-		});
-		await object.save();
-		objects[object._id] = object;
-		dispatch("broadcast", { event: 'update', data: object });
-	}
-
-	if (e.event === "delete") {
-		if (objects[e.data._id]) {
-			await objects[e.data._id].destroy();
-			delete objects[e.data._id];
-
-			if (changes[e.data._id]) delete changes[e.data._id];
-		}
-		dispatch("broadcast", { event: 'delete', data: e.data._id });
 	}
 }
