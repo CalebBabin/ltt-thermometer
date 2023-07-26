@@ -2,6 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { ConnectionContext } from './connectionContext';
 import { FaCheckCircle } from 'react-icons/fa';
 
+const months = [
+	'Jan',
+	'Feb',
+	'Mar',
+	'Apr',
+	'May',
+	'June',
+	'July',
+	'Aug',
+	'Sept',
+	'Oct',
+	'Nov',
+	'Dec',
+]
+
 const renderers = {
 	goal: ({ object, startDate, endDate, minMaxDiff }) => {
 		const [data, setData] = useState(object.data);
@@ -18,6 +33,8 @@ const renderers = {
 			}
 		}, [object]);
 
+		const d = new Date(data.value.date);
+
 		return <div className='my-4 px-2 absolute overflow-visible whitespace-pre' style={{
 			top: (
 				(data.value.date - startDate) / minMaxDiff
@@ -25,7 +42,7 @@ const renderers = {
 			right: '50%',
 		}}>
 			<div className='absolute right-0'>
-				<small className='opacity-50'>{new Date(data.value.date).toLocaleString().split(', ')[0]}</small>
+				<small className='opacity-50'>{months[d.getMonth()]} {d.getDate()}, {d.getFullYear()}</small>
 				&nbsp;
 				<span className={data.value.completed ? 'line-through opacity-70' : ''}>
 					{data.name}
