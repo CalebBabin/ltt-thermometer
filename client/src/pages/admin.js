@@ -32,8 +32,8 @@ export default function AdminPage() {
 			connection.closing = false;
 			const key = localStorage.getItem('key');
 			const host = process.env.NEXT_PUBLIC_OVERLAY_API.split('://')[1].split(':')[0];
-			const protocol = location.protocol.startsWith('https') ? 'wss' : 'ws';
-			const port = location.host.startsWith('localhost') ? 8080 : 443;
+			const protocol = (location.protocol === 'https:') ? 'wss' : 'ws';
+			const port = (location.protocol === 'http:') ? 8080 : 443;
 
 			console.log(host, location.host);
 

@@ -31,8 +31,8 @@ export default function Viewer() {
 			const urlParams = new URLSearchParams(window.location.search);
 			const key = urlParams.get('key');
 			const host = process.env.NEXT_PUBLIC_OVERLAY_API.split('://')[1].split(':')[0];
-			const protocol = location.protocol.startsWith('https') ? 'wss' : 'ws';
-			const port = location.host.startsWith('localhost') ? 8080 : 443;
+			const protocol = (location.protocol === 'https:') ? 'wss' : 'ws';
+			const port = (location.protocol === 'http:') ? 8080 : 443;
 			console.log(host, location.host);
 
 			connection.connect({
