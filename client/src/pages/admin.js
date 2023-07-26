@@ -38,7 +38,8 @@ const editors = {
 			}
 		}, [object]);
 
-		return <div>
+		return <div className='bg-slate-700 rounded p-2'>
+			Editing goal: {data.name}
 			<DateTimeLocalInput
 				value={data.value.date}
 				onChange={(e) => {
@@ -67,9 +68,52 @@ const editors = {
 			</label>
 		</div>
 	},
+
+	metadata: ({ object }) => {
+		const [data, setData] = useState(object.data);
+
+		useEffect(() => {
+			if (typeof window === 'undefined') return;
+
+			function changeListener(new_data) {
+				setData({ ...new_data });
+			}
+			object.listen(changeListener);
+			return () => {
+				object.removeListener(changeListener);
+			}
+		}, [object]);
+
+		return <div>
+			Start date:
+			<DateTimeLocalInput
+				value={data.value.startDate}
+				onChange={(e) => {
+					object.update({
+						value: {
+							startDate: new Date(e.target.value).getTime(),
+						},
+					});
+				}
+				} />
+			<br />
+			End date:
+			<DateTimeLocalInput
+				value={data.value.endDate}
+				onChange={(e) => {
+					object.update({
+						value: {
+							endDate: new Date(e.target.value).getTime(),
+						},
+					});
+				}
+				} />
+		</div>
+	},
 }
 
-function Editor({ objects, targetType, name }) {
+function Editor(props) {
+	const { objects, targetType, name, defaultProps } = props;
 	const [selected, setSelected] = useState(null);
 	const objectListRef = useRef();
 
@@ -96,6 +140,12 @@ function Editor({ objects, targetType, name }) {
 		}
 	}
 
+	const items = [];
+	for (const key in objects) {
+		const object = objects[key];
+		if (object.data.type !== targetType) continue;
+		items.push(object);
+	}
 
 	return <>
 		<ListBox
@@ -103,18 +153,12 @@ function Editor({ objects, targetType, name }) {
 			passRef={objectListRef}
 			header={<div className='flex justify-between items-center'>
 				{name}
-				<CreateButton defaults={{
-					name: "New Goal",
-					type: "goal",
-					value: {
-						date: Date.now(),
-					},
-				}} />
+				{(!props.max || items.length < props.max) &&
+					<CreateButton defaults={defaultProps} />
+				}
 			</div>}>
-			{Object.keys(objects).map((key) => {
-				const object = objects[key];
-				if (object.data.type !== targetType) return null;
-				return <ObjectItem key={key} object={object} selected={selected} setSelected={setSelected} />
+			{items.map((item) => {
+				return <ObjectItem key={item.data._id} object={item} selected={selected} setSelected={setSelected} />
 			})}
 		</ListBox>
 
@@ -177,9 +221,37 @@ export default function AdminPage() {
 						<h1 className='text-xl lg:text-3xl text-center my-2'>control</h1>
 						<br />
 
-						<Editor objects={objects} targetType='goal' name="Goals" />
+						<Editor
+							defaultProps={{
+								name: "New Goal",
+								type: "goal",
+								value: {
+									date: Date.now(),
+								},
+							}}
+							objects={objects}
+							targetType='goal'
+							name="Goals"
+						/>
 
-						<hr className='my-2' />
+						<br />
+						<br />
+						<br />
+						<br />
+
+						<Editor
+							defaultProps={{
+								name: "Global Config",
+								type: "metadata",
+								value: {
+									startDate: Date.now(),
+									endDate: Date.now() + 1000 * 60 * 60 * 24 * 7,
+								},
+							}}
+							objects={objects}
+							targetType='metadata'
+							max={1}
+						/>
 					</div>
 
 					<div className='overflow-hidden h-full w-full flex justify-center items-center bg-slate-800 relative'>

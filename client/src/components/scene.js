@@ -3,7 +3,7 @@ import { ConnectionContext } from './connectionContext';
 import { FaCheckCircle } from 'react-icons/fa';
 
 const renderers = {
-	goal: ({ object, minDate, maxDate, minMaxDiff }) => {
+	goal: ({ object, startDate, endDate, minMaxDiff }) => {
 		const [data, setData] = useState(object.data);
 		useEffect(() => {
 			if (typeof window === 'undefined') return;
@@ -20,7 +20,7 @@ const renderers = {
 
 		return <div className='my-4 px-2 absolute overflow-visible whitespace-pre' style={{
 			top: (
-				(data.value.date - minDate) / minMaxDiff
+				(data.value.date - startDate) / minMaxDiff
 			) * 100 + '%',
 			right: '50%',
 		}}>
@@ -43,22 +43,71 @@ class Scene extends React.Component {
 		super(props);
 
 		this.state = {
-			minDate: Date.now() - 1000 * 60 * 60 * 24 * 1,
-			maxDate: Date.now(),
+			startDate: 0,
+			endDate: 999999999,
+		}
+		this.checkForMetadata();
+	}
+
+	checkForMetadata() {
+		for (const key in this.props.objects) {
+			const object = this.props.objects[key];
+
+			if (object.data.type === 'metadata') {
+				if (!this.metadataListener && typeof window !== 'undefined') {
+					this.metadataListener = function changeListener(new_data) {
+						console.log(new_data);
+						if (new_data.value.startDate) {
+							this.setState({
+								startDate: new_data.value.startDate,
+							});
+						}
+						if (new_data.value.endDate) {
+							this.setState({
+								startDate: new_data.value.endDate,
+							});
+						}
+					}
+					object.listen(this.metadataListener);
+					this.unbindListener = () => {
+						object.removeListener(this.metadataListener);
+					}
+
+					this.setState({
+						startDate: object.data.value.startDate,
+						endDate: object.data.value.endDate,
+					});
+				}
+				break;
+			}
+		}
+	}
+
+	componentDidUpdate() {
+		this.checkForMetadata();
+	}
+	componentWillUnmount() {
+		if (this.metadataListener) {
+			this.unbindListener();
+			delete this.unbindListener;
+			delete this.metadataListener;
 		}
 	}
 	static contextType = ConnectionContext;
 	componentDidMount() {
 		this.connection = this.context.connection;
+		this.checkForMetadata();
 	}
+
 	render() {
-		const minMaxDiff = this.state.maxDate - this.state.minDate;
+		const minMaxDiff = this.state.endDate - this.state.startDate;
 		const objects = [];
 		for (const key in this.props.objects) {
 			const object = this.props.objects[key];
 			objects.push(object);
-			console.log(object);
 		}
+		console.log(this.state);
+
 		return (
 			<div className='w-full h-full relative'>
 				{objects.map((object) => {
@@ -66,8 +115,8 @@ class Scene extends React.Component {
 						const Element = renderers[object.data.type];
 						return <Element
 							object={object}
-							minDate={this.state.minDate}
-							maxDate={this.state.maxDate}
+							startDate={this.state.startDate}
+							endDate={this.state.endDate}
 							minMaxDiff={minMaxDiff}
 							key={object._id}
 						/>
