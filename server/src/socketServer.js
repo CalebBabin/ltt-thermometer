@@ -152,12 +152,17 @@ export default function socketServer(server) {
 
 const callbacks = {};
 const objects = {};
-ObjectModel.findAll().then((data) => {
-	for (let index = 0; index < data.length; index++) {
-		const object = data[index];
-		objects[object._id] = object;
-	}
-});
+
+setTimeout(() => {
+	ObjectModel.findAll().then((data) => {
+		for (let index = 0; index < data.length; index++) {
+			const object = data[index];
+			objects[object._id] = object;
+		}
+	});
+
+	dispatch("broadcast", { event: 'load', data: { objects: objects } });
+}, 1000);
 
 let changes = {}; // save changes to db every 10 seconds to reduce db load
 setInterval(checkChanges.bind(this), 10000);
