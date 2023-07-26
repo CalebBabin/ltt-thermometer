@@ -5,18 +5,114 @@ import { ListBox, ListItem } from '@/components/elements/list';
 import Metadata from '@/components/metadata';
 import Scene from '@/components/scene';
 import Connection from '@/lib/connection';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { FaTrash } from 'react-icons/fa';
 import { StateManager } from '@/lib/stateManager';
 import ConnectionRequired from '@/components/ConnectionRequired';
+
+function DateTimeLocalInput(props) {
+	const date = new Date(props.value);
+	return <input
+		type="datetime-local"
+		className="text-black bg-white w-full"
+		{...props}
+		value={
+			date.getFullYear() + '-' + (date.getMonth() + 1).toString().padStart(2, '0') + '-' + date.getDate().toString().padStart(2, '0') + 'T' + date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0')
+		}
+	/>
+}
+
+const editors = {
+	goal: ({ object }) => {
+		const [data, setData] = useState(object.data);
+
+		useEffect(() => {
+			if (typeof window === 'undefined') return;
+
+			function changeListener(new_data) {
+				setData({ ...new_data });
+			}
+			object.listen(changeListener);
+			return () => {
+				object.removeListener(changeListener);
+			}
+		}, [object]);
+
+		return <div>
+			<DateTimeLocalInput
+				value={data.value.date}
+				onChange={(e) => {
+					console.log(e.target.value, new Date(e.target.value));
+					object.update({
+						value: {
+							date: new Date(e.target.value).getTime(),
+						},
+					});
+				}} />
+		</div>
+	},
+}
+
+function Editor({ objects, targetType, name }) {
+	const [selected, setSelected] = useState(null);
+	const objectListRef = useRef();
+
+	let selectedElement = null;
+	if (selected) {
+		let object = null;
+		for (const key in objects) {
+			if (objects[key]._id === selected) {
+				object = objects[key];
+				break;
+			}
+		}
+		if (object) {
+			if (editors[object.data.type]) {
+				const Inspector = editors[object.data.type];
+				selectedElement = <Inspector object={object} key={object._id} />
+			} else {
+				selectedElement = <>
+					<div>unknown type "{object.data.type}"</div>
+				</>
+			}
+		} else {
+			setSelected(null);
+		}
+	}
+
+
+	return <>
+		<ListBox
+			containerClass="max-h-[30vh]"
+			passRef={objectListRef}
+			header={<div className='flex justify-between items-center'>
+				{name}
+				<CreateButton defaults={{
+					name: "New Goal",
+					type: "goal",
+					value: {
+						date: Date.now(),
+					},
+				}} />
+			</div>}>
+			{Object.keys(objects).map((key) => {
+				const object = objects[key];
+				if (object.data.type !== targetType) return null;
+				return <ObjectItem key={key} object={object} selected={selected} setSelected={setSelected} />
+			})}
+		</ListBox>
+
+		<div className='mb-2' />
+
+		{selectedElement}
+	</>
+}
 
 export default function AdminPage() {
 	const connection = useMemo(() => new Connection(), []);
 	const stateManager = useMemo(() => new StateManager(connection), []);
 	const [objects, setObjects] = useState({});
-	const [selected, setSelected] = useState(null);
 
-	const objectListRef = useRef();
 
 	useEffect(() => {
 		let objectsLength = 0;
@@ -46,59 +142,14 @@ export default function AdminPage() {
 		}
 
 
-		const selectListener = (e) => {
-			if (e.detail._id === selected) return;
-			setSelected(e.detail._id);
-		};
-		window.addEventListener('SelectNewObject', selectListener);
-
 		return () => {
 			if (!location.host.startsWith('localhost')) connection.disconnect();
-			window.removeEventListener('SelectNewObject', selectListener);
 		}
 	}, [])
 
-	let selectedElement = null;
-	if (selected) {
-		let object = null;
-		for (const key in objects) {
-			if (objects[key]._id === selected) {
-				object = objects[key];
-				break;
-			}
-		}
-		if (object) {
-			// for (let i = 0; i < AvailableObjects.length; i++) {
-			// 	if (AvailableObjects[i].defaultProperties.type === object.data.type) {
-			// 		const Inspector = AvailableObjects[i].Inspector;
-			// 		selectedElement = <Inspector object={object} key={object._id} />
-			// 		break;
-			// 	}
-			// }
-			if (!selectedElement) {
-				selectedElement = <>
-					<div>unknown type "{object.data.type}"</div>
-				</>
-			}
-		} else {
-			setSelected(null);
-		}
-	}
-
-	useEffect(() => {
-		// scroll to selected object
-		if (selected && objectListRef.current) {
-			const objectList = objectListRef.current;
-			const selectedElement = objectList.querySelector(`[data-id="${selected}"]`);
-			if (selectedElement) {
-				selectedElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-			}
-		}
-
-	}, [selected, objectListRef])
 
 	return (
-		<ConnectionContext.Provider value={{ connection, stateManager, selected, setSelected }}>
+		<ConnectionContext.Provider value={{ connection, stateManager }}>
 			<Metadata title="Control - Thermometer" />
 
 			<ConnectionRequired connection={connection}>
@@ -109,22 +160,10 @@ export default function AdminPage() {
 
 						<h1 className='text-xl lg:text-3xl text-center my-2'>control</h1>
 						<br />
-						<ListBox
-							containerClass="max-h-[30vh]"
-							passRef={objectListRef}
-							header={<div className='flex justify-between items-center'>
-								objects
-								<CreateButton connection={connection} />
-							</div>}>
-							{Object.keys(objects).map((key) => {
-								const object = objects[key];
-								return <ObjectItem key={key} object={object} selected={selected} setSelected={setSelected} />
-							})}
-						</ListBox>
 
-						<br />
+						<Editor objects={objects} targetType='goal' name="Goals" />
 
-						{selectedElement}
+						<hr className='my-2' />
 					</div>
 
 					<div className='overflow-hidden h-full w-full flex justify-center items-center bg-slate-800 relative'>
@@ -143,15 +182,17 @@ export default function AdminPage() {
 function ObjectItem({ object, selected, setSelected }) {
 	const [data, setData] = useState(object.data);
 	useEffect(() => {
-		function changeListener(data) {
-			setData({ ...data });
+		if (typeof window === 'undefined') return;
+
+		function changeListener(new_data) {
+			setData({ ...new_data });
 		}
 		object.listen(changeListener);
 
 		return () => {
 			object.removeListener(changeListener);
 		}
-	}, []);
+	}, [object]);
 
 	return <ListItem uid={data._id} isSelected={selected === data._id} onClick={() => {
 		setSelected(data._id);
@@ -178,18 +219,14 @@ function ObjectItem({ object, selected, setSelected }) {
 	</ListItem>
 }
 
-function CreateButton({ connection }) {
+function CreateButton({ defaults }) {
+	const connection = useContext(ConnectionContext).connection;
+
 	return <div className='relative'>
 		<Button size="small" onClick={() => {
-			connection.send('create', {
-				name: "New Goal",
-				type: "goal",
-				value: {
-					date: Date.now(),
-				},
-			});
+			connection.send('create', defaults);
 		}}>
-			+create goal
+			+ new
 		</Button>
 	</div>
 }

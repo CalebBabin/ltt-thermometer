@@ -126,7 +126,6 @@ class Item {
 
 	receiveUpdate(data) {
 		if (this.disposing) return;
-
 		const updatedData = {};
 		for (const key in data) {
 			if (Object.hasOwnProperty.call(data, key)) {
@@ -137,7 +136,7 @@ class Item {
 						if (Object.hasOwnProperty.call(value, propKey)) {
 							const propValue = value[propKey];
 							// this.data.value[propKey] = propValue;
-							if (!this.dataTimes[propKey] || data.lastUpdate > this.dataTimes[propKey]) {
+							if (!this.dataTimes[propKey] || data.lastUpdate >= this.dataTimes[propKey]) {
 								this.data.value[propKey] = propValue;
 								this.dataTimes[propKey] = data.lastUpdate;
 								if (!updatedData.value) updatedData.value = {};
@@ -146,7 +145,7 @@ class Item {
 						}
 					}
 				} else {
-					if (!this.dataTimes[key] || data.lastUpdate > this.dataTimes[key]) {
+					if (!this.dataTimes[key] || data.lastUpdate >= this.dataTimes[key]) {
 						this.data[key] = value;
 						this.dataTimes[key] = data.lastUpdate;
 						updatedData[key] = value;
