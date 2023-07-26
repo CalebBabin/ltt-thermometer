@@ -14,6 +14,10 @@ app.use(function (req, res, next) {
 	next();
 });
 
+app.get('/', (req, res) => {
+	res.send('Hello World!');
+});
+
 
 const server = http.createServer(app);
 
