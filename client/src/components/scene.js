@@ -35,7 +35,7 @@ const renderers = {
 
 		const d = new Date(data.value.date);
 
-		return <div className='my-4 px-2 absolute overflow-visible whitespace-pre' style={{
+		return <div className='my-4 mr-14 px-2 absolute overflow-visible whitespace-pre' style={{
 			top: (
 				(data.value.date - startDate) / minMaxDiff
 			) * 100 + '%',
@@ -52,6 +52,28 @@ const renderers = {
 			</div>
 		</div>
 	}
+}
+
+
+function Thermometer({ startDate, endDate, minMaxDiff }) {
+	const [time, setTime] = useState(Date.now());
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setTime(Date.now());
+		}, 1000);
+		return () => {
+			clearInterval(interval);
+		}
+	}, []);
+
+	return <div className='w-24 -ml-12 h-full bg-black absolute top-0 left-[50%]'>
+		<div className='w-full bg-red-400 absolute bottom-0' style={{
+			height: (
+				(time - startDate) / minMaxDiff
+			) * 100 + '%',
+		}} />
+	</div>;
 }
 
 
@@ -127,6 +149,8 @@ class Scene extends React.Component {
 
 		return (
 			<div className='w-full h-full relative'>
+				<Thermometer startDate={this.state.startDate} endDate={this.state.endDate} minMaxDiff={minMaxDiff} />
+
 				{objects.map((object) => {
 					if (renderers[object.data.type]) {
 						const Element = renderers[object.data.type];

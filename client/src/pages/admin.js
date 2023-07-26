@@ -28,7 +28,6 @@ const editors = {
 
 		useEffect(() => {
 			if (typeof window === 'undefined') return;
-
 			function changeListener(new_data) {
 				setData({ ...new_data });
 			}
