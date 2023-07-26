@@ -5,19 +5,11 @@ import { ConnectionContext } from './connectionContext';
 class Scene extends React.Component {
 	constructor(props) {
 		super(props);
-
-
-		this.state = {
-			renderStage: false,
-		};
 	}
 
 	static contextType = ConnectionContext;
 
 	componentDidMount() {
-		this.setState({
-			renderStage: true,
-		});
 		this.connection = this.context.connection;
 	}
 
@@ -28,7 +20,7 @@ class Scene extends React.Component {
 			objects.push(object);
 		}
 		return (
-			<ul>
+			<div className='w-full h-full'>
 				{objects.map((object) => {
 					return (
 						<li key={object._id} className='my-4 px-2'>
@@ -36,7 +28,7 @@ class Scene extends React.Component {
 						</li>
 					);
 				})}
-			</ul>
+			</div>
 		);
 	}
 }

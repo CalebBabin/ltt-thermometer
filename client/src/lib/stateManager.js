@@ -82,16 +82,16 @@ class Item {
 			if (Object.hasOwnProperty.call(this.data, key)) {
 				this.dataTimes[key] = 0;
 
-				if (key === 'properties') {
-					for (const prop in this.data.properties) {
-						if (Object.hasOwnProperty.call(this.data.properties, prop)) {
+				if (key === 'value') {
+					for (const prop in this.data.value) {
+						if (Object.hasOwnProperty.call(this.data.value, prop)) {
 							this.dataTimes[prop] = 0;
 						}
 					}
 				}
 			}
 		}
-		if (!this.dataTimes.properties) this.dataTimes.properties = 0;
+		if (!this.dataTimes.value) this.dataTimes.value = 0;
 
 		this._id = data._id || data.id;
 		this.id = data._id || data.id;
@@ -131,17 +131,17 @@ class Item {
 		for (const key in data) {
 			if (Object.hasOwnProperty.call(data, key)) {
 				const value = data[key];
-				if (key === 'properties') {
-					if (!this.data.properties) this.data.properties = {};
+				if (key === 'value') {
+					if (!this.data.value) this.data.value = {};
 					for (const propKey in value) {
 						if (Object.hasOwnProperty.call(value, propKey)) {
 							const propValue = value[propKey];
-							// this.data.properties[propKey] = propValue;
+							// this.data.value[propKey] = propValue;
 							if (!this.dataTimes[propKey] || data.lastUpdate > this.dataTimes[propKey]) {
-								this.data.properties[propKey] = propValue;
+								this.data.value[propKey] = propValue;
 								this.dataTimes[propKey] = data.lastUpdate;
-								if (!updatedData.properties) updatedData.properties = {};
-								updatedData.properties[propKey] = propValue;
+								if (!updatedData.value) updatedData.value = {};
+								updatedData.value[propKey] = propValue;
 							}
 						}
 					}

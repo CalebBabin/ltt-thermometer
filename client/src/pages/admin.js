@@ -142,7 +142,6 @@ export default function AdminPage() {
 
 function ObjectItem({ object, selected, setSelected }) {
 	const [data, setData] = useState(object.data);
-
 	useEffect(() => {
 		function changeListener(data) {
 			setData({ ...data });
@@ -153,7 +152,6 @@ function ObjectItem({ object, selected, setSelected }) {
 			object.removeListener(changeListener);
 		}
 	}, []);
-
 
 	return <ListItem uid={data._id} isSelected={selected === data._id} onClick={() => {
 		setSelected(data._id);
@@ -179,7 +177,6 @@ function ObjectItem({ object, selected, setSelected }) {
 		</div>
 	</ListItem>
 }
-
 
 function CreateButton({ connection }) {
 	return <div className='relative'>
