@@ -17,12 +17,17 @@ const renderers = {
 			}
 		}, [object]);
 
-		return <div className='my-4 px-2 absolute' style={{
+		return <div className='my-4 px-2 absolute overflow-visible whitespace-pre' style={{
 			top: (
 				(data.value.date - minDate) / minMaxDiff
 			) * 100 + '%',
+			right: '50%',
 		}}>
-			{JSON.stringify(data)}
+			<div className='absolute right-0'>
+				<small className='opacity-50'>{new Date(data.value.date).toLocaleString()}</small>
+				&nbsp;
+				{data.name} -
+			</div>
 		</div>
 	}
 }
