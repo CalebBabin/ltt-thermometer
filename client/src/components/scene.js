@@ -67,8 +67,8 @@ function Thermometer({ startDate, endDate, minMaxDiff }) {
 		}
 	}, []);
 
-	return <div className='w-24 -ml-12 h-full bg-black absolute top-0 left-[50%]'>
-		<div className='w-full bg-red-400 absolute bottom-0' style={{
+	return <div className='w-24 -ml-12 h-full bg-slate-900 absolute top-0 left-[50%]'>
+		<div className='w-full bg-red-600 absolute bottom-0' style={{
 			height: (
 				(time - startDate) / minMaxDiff
 			) * 100 + '%',
