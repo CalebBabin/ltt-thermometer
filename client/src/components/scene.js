@@ -25,7 +25,7 @@ const renderers = {
 			right: '50%',
 		}}>
 			<div className='absolute right-0'>
-				<small className='opacity-50'>{new Date(data.value.date).toLocaleString()}</small>
+				<small className='opacity-50'>{new Date(data.value.date).toLocaleString().split(', ')[0]}</small>
 				&nbsp;
 				<span className={data.value.completed ? 'line-through opacity-70' : ''}>
 					{data.name}
