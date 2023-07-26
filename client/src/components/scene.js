@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ConnectionContext } from './connectionContext';
+import { FaCheckCircle } from 'react-icons/fa';
 
 const renderers = {
 	goal: ({ object, minDate, maxDate, minMaxDiff }) => {
@@ -26,7 +27,11 @@ const renderers = {
 			<div className='absolute right-0'>
 				<small className='opacity-50'>{new Date(data.value.date).toLocaleString()}</small>
 				&nbsp;
-				{data.name} -
+				<span className={data.value.completed ? 'line-through opacity-70' : ''}>
+					{data.name}
+				</span>
+				&nbsp;-
+				{data.value.completed && <FaCheckCircle className='inline ml-1 text-green-500 text-xl' />}
 			</div>
 		</div>
 	}

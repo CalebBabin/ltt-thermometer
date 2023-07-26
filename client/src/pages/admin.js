@@ -49,6 +49,22 @@ const editors = {
 						},
 					});
 				}} />
+
+			<label>
+				<input
+					className='mr-1'
+					type='checkbox'
+					checked={data.value.completed}
+					onChange={(e) => {
+						object.update({
+							value: {
+								completed: e.target.checked,
+							},
+						});
+					}}
+				/>
+				Completed
+			</label>
 		</div>
 	},
 }
