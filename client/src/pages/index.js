@@ -20,7 +20,6 @@ export default function Viewer() {
 			stateManager.callback = (newObjects, force = false) => {
 				const newLength = Object.keys(newObjects).length;
 				if (newLength !== objectsLength || force) {
-					console.log(newObjects)
 					setObjects({ ...newObjects });
 					objectsLength = newLength;
 				}
