@@ -310,8 +310,14 @@ function ObjectItem({ object, selected, setSelected }) {
 		}
 		object.listen(changeListener);
 
+		function selectListener(e) {
+			setSelected(object._id);
+		}
+		window.addEventListener('select-' + object._id, selectListener);
+
 		return () => {
 			object.removeListener(changeListener);
+			window.removeEventListener('select-' + object._id, selectListener);
 		}
 	}, [object]);
 

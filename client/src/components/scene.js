@@ -45,7 +45,13 @@ const renderers = {
 			style.right = '110%';
 		}
 
-		return <div className='my-4 px-2 absolute overflow-visible whitespace-pre' style={style}>
+		return <div
+			className='my-4 px-2 absolute overflow-visible whitespace-pre cursor-pointer'
+			style={style}
+			onClick={() => {
+				window.dispatchEvent(new CustomEvent('select-' + object._id));
+			}}
+		>
 			<div className={'absolute flex items-center gap-1 ' + (data.value.flipped ? 'left-0 flex-row-reverse' : 'right-0')}>
 				<small className='opacity-50'>{months[d.getMonth()]} {d.getDate()}, {d.getFullYear()}</small>
 				<span className={data.value.completed ? 'line-through opacity-70' : ''}>
