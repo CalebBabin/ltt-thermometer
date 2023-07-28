@@ -54,9 +54,30 @@ const renderers = {
 	}
 }
 
+const bigTick = 'w-full h-px bg-white opacity-50';
+const smallTick = 'w-1/4 h-px bg-white opacity-20';
 
 function Thermometer({ startDate, endDate, minMaxDiff, children }) {
 	const [time, setTime] = useState(Date.now());
+	const [tickMarks, setTickMarks] = useState([]);
+
+	useEffect(() => {
+		const ticks = [];
+		const tickCount = 12;
+		for (let i = 0; i < tickCount; i++) {
+			const tickTime = startDate + (minMaxDiff - (minMaxDiff) * (i / tickCount));
+			const tickDate = new Date(tickTime);
+			ticks.push(<div key={i} className='flex flex-col justify-around items-center w-full h-full'>
+				<div className={bigTick} />
+				<div className={smallTick} />
+				<div>
+					<small className='opacity-50'>{months[tickDate.getMonth()]} {tickDate.getDate()}</small>
+				</div>
+				<div className={smallTick} />
+			</div>)
+		}
+		setTickMarks(ticks);
+	}, [startDate, endDate, minMaxDiff]);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -78,6 +99,9 @@ function Thermometer({ startDate, endDate, minMaxDiff, children }) {
 					(time - startDate) / minMaxDiff
 				) * 100 + '%',
 			}} />
+		</div>
+		<div className='z-10 absolute inset-4 items-center flex flex-col justify-between rounded-t-[5rem] overflow-hidden'>
+			{tickMarks}
 		</div>
 		<div className='absolute w-full top-12 bottom-12'>
 			{children}
