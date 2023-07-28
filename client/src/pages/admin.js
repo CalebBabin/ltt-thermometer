@@ -190,7 +190,14 @@ function Editor(props) {
 				}
 			</div>}>
 			{items.map((item) => {
-				return <ObjectItem key={item.data._id} object={item} selected={selected} setSelected={setSelected} />
+				return <ObjectItem
+					allowNameChange={props.allowNameChange}
+					allowDelete={props.allowDelete}
+					key={item.data._id}
+					object={item}
+					selected={selected}
+					setSelected={setSelected}
+				/>
 			})}
 		</ListBox>
 
@@ -286,6 +293,8 @@ export default function AdminPage() {
 							objects={objects}
 							targetType='metadata'
 							max={1}
+							allowDelete={false}
+							allowNameChange={false}
 						/>
 					</div>
 
@@ -302,7 +311,7 @@ export default function AdminPage() {
 	)
 }
 
-function ObjectItem({ object, selected, setSelected }) {
+function ObjectItem({ object, selected, setSelected, allowNameChange = true, allowDelete = true }) {
 	const [data, setData] = useState(object.data);
 	useEffect(() => {
 		if (typeof window === 'undefined') return;
@@ -326,17 +335,18 @@ function ObjectItem({ object, selected, setSelected }) {
 	return <ListItem uid={data._id} isSelected={selected === data._id} onClick={() => {
 		setSelected(data._id);
 	}}>
-		<div className={'flex items-center justify-between gap-2'}>
-			<InvisInput
+		<div className={'flex items-center justify-between gap-2 ' + (!allowNameChange ? 'cursor-pointer' : '')}>
+			{allowNameChange ? <InvisInput
 				className='truncate'
 				value={data.name}
 				onChange={e => {
 					object.update({
 						name: e.target.value,
 					});
-				}} />
+				}} /> : <div className='truncate'>{data.name}</div>}
+
 			<div className='mx-auto' />
-			<div>
+			<div className={allowDelete ? '' : 'hidden'}>
 				<FaTrash
 					className='cursor-pointer'
 					onClick={() => {
