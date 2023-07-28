@@ -102,7 +102,9 @@ function Thermometer({ startDate, endDate, minMaxDiff, children }) {
 		borderRadius: '5rem',
 		height: 'calc(100% - 20rem)',
 	}} className='w-24 -ml-12 bg-slate-900 absolute top-[10%] left-[50%]'>
-		<div className='w-48 h-48 bg-red-600 absolute top-[100%] left-[50%] -mt-16 -ml-[100%] rounded-full' />
+		<div className='w-48 h-48 bg-red-600 text-xl lg:text-6xl flex justify-center text-center items-center absolute top-[100%] left-[50%] -mt-16 -ml-[100%] rounded-full'>
+			{Math.round(((time - startDate) / minMaxDiff) * 100)}°
+		</div>
 		<div className='absolute inset-0 overflow-hidden rounded-[5rem]'>
 			<div className='w-full bg-red-600 absolute bottom-0' style={{
 				height: (
