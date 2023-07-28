@@ -75,7 +75,7 @@ export default function Viewer() {
 	return (
 		<ErrorBoundary>
 			<ConnectionContext.Provider value={{ connection, stateManager }}>
-				<Metadata title="Control - View" />
+				<Metadata title="Shot-o-meter!" />
 				<div className='w-screen h-screen'>
 					<Scene objects={objects} viewer={true} />
 				</div>

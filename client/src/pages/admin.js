@@ -209,7 +209,7 @@ export default function AdminPage() {
 
 	return (
 		<ConnectionContext.Provider value={{ connection, stateManager }}>
-			<Metadata title="Control - Thermometer" />
+			<Metadata title="Admin: Shot-o-meter" />
 
 			<ConnectionRequired connection={connection}>
 				<div className="w-screen h-screen flex flex-col md:flex-row">
