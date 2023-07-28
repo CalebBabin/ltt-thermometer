@@ -250,7 +250,9 @@ export default function AdminPage() {
 					<div className='text-left w-full md:min-w-[250px] md:w-[250px] lg:min-w-[350px] lg:w-[350px] md:max-h-screen overflow-y-auto bg-gray-900 relative z-100 px-4'>
 						<br />
 
-						<h1 className='text-xl lg:text-3xl text-center my-2'>control</h1>
+						<h1 className='text-xl lg:text-3xl text-center my-2'>
+							The Shot-O-Meter!
+						</h1>
 						<br />
 
 						<Editor
