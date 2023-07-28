@@ -35,11 +35,11 @@ const renderers = {
 
 		const d = new Date(data.value.date);
 
-		return <div className='my-4 mr-14 px-2 absolute overflow-visible whitespace-pre' style={{
+		return <div className='my-4 px-2 absolute overflow-visible whitespace-pre' style={{
 			bottom: (
 				(data.value.date - startDate) / minMaxDiff
 			) * 100 + '%',
-			right: '50%',
+			right: '110%',
 		}}>
 			<div className='absolute right-0'>
 				<small className='opacity-50'>{months[d.getMonth()]} {d.getDate()}, {d.getFullYear()}</small>
@@ -55,7 +55,7 @@ const renderers = {
 }
 
 
-function Thermometer({ startDate, endDate, minMaxDiff }) {
+function Thermometer({ startDate, endDate, minMaxDiff, children }) {
 	const [time, setTime] = useState(Date.now());
 
 	useEffect(() => {
@@ -67,12 +67,20 @@ function Thermometer({ startDate, endDate, minMaxDiff }) {
 		}
 	}, []);
 
-	return <div className='w-24 -ml-12 h-full bg-slate-900 absolute top-0 left-[50%]'>
+	return <div style={{
+		borderRadius: '5rem',
+		height: 'calc(100% - 20rem)',
+	}} className='w-24 -ml-12 bg-slate-900 absolute top-[10%] left-[50%]'>
+		<div className='w-48 h-48 bg-red-600 absolute top-[100%] left-[50%] -mt-16 -ml-[100%] rounded-full' />
 		<div className='w-full bg-red-600 absolute bottom-0' style={{
 			height: (
 				(time - startDate) / minMaxDiff
 			) * 100 + '%',
+			borderRadius: '5rem',
 		}} />
+		<div className='absolute w-full top-12 bottom-12'>
+			{children}
+		</div>
 	</div>;
 }
 
@@ -126,21 +134,22 @@ class Scene extends React.Component {
 
 		return (
 			<div className='w-full h-full relative'>
-				<Thermometer startDate={this.state.startDate} endDate={this.state.endDate} minMaxDiff={minMaxDiff} />
-				{objects.map((object) => {
-					if (renderers[object.data.type]) {
-						const Element = renderers[object.data.type];
-						return <Element
-							object={object}
-							startDate={this.state.startDate}
-							endDate={this.state.endDate}
-							minMaxDiff={minMaxDiff}
-							key={object._id}
-						/>
-					} else {
-						return <span key={object._id} />;
-					}
-				})}
+				<Thermometer startDate={this.state.startDate} endDate={this.state.endDate} minMaxDiff={minMaxDiff}>
+					{objects.map((object) => {
+						if (renderers[object.data.type]) {
+							const Element = renderers[object.data.type];
+							return <Element
+								object={object}
+								startDate={this.state.startDate}
+								endDate={this.state.endDate}
+								minMaxDiff={minMaxDiff}
+								key={object._id}
+							/>
+						} else {
+							return <span key={object._id} />;
+						}
+					})}
+				</Thermometer>
 			</div>
 		);
 	}
