@@ -34,21 +34,25 @@ const renderers = {
 		}, [object]);
 
 		const d = new Date(data.value.date);
-
-		return <div className='my-4 px-2 absolute overflow-visible whitespace-pre' style={{
+		const style = {
 			bottom: (
 				(data.value.date - startDate) / minMaxDiff
 			) * 100 + '%',
-			right: '110%',
-		}}>
-			<div className='absolute right-0'>
+		}
+		if (data.value.flipped) {
+			style.left = '110%';
+		} else {
+			style.right = '110%';
+		}
+
+		return <div className='my-4 px-2 absolute overflow-visible whitespace-pre' style={style}>
+			<div className={'absolute flex items-center gap-1 ' + (data.value.flipped ? 'left-0 flex-row-reverse' : 'right-0')}>
 				<small className='opacity-50'>{months[d.getMonth()]} {d.getDate()}, {d.getFullYear()}</small>
-				&nbsp;
 				<span className={data.value.completed ? 'line-through opacity-70' : ''}>
 					{data.name}
 				</span>
-				&nbsp;-
-				{data.value.completed && <FaCheckCircle className='inline ml-1 text-green-500 text-xl' />}
+				{data.value.completed && <FaCheckCircle className='inline text-green-500 text-xl' />}
+				<span className='opacity-50'>&#8212;</span>
 			</div>
 		</div>
 	}

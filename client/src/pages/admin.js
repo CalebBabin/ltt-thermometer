@@ -9,6 +9,7 @@ import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { FaTrash } from 'react-icons/fa';
 import { StateManager } from '@/lib/stateManager';
 import ConnectionRequired from '@/components/ConnectionRequired';
+import { NumberInput } from '@/components/inputs/number';
 
 function DateTimeLocalInput(props) {
 	const date = new Date(props.value);
@@ -37,7 +38,7 @@ const editors = {
 			}
 		}, [object]);
 
-		return <div className='bg-slate-700 rounded p-2'>
+		return <div className='bg-slate-700 rounded p-2 flex flex-col gap-2'>
 			Editing goal: {data.name}
 			<DateTimeLocalInput
 				value={data.value.date}
@@ -48,7 +49,39 @@ const editors = {
 							date: new Date(e.target.value).getTime(),
 						},
 					});
-				}} />
+				}}
+			/>
+
+			<label>
+				Weight:
+				<NumberInput
+					value={data.value.weight || 0}
+					min={0}
+					onChange={(e) => {
+						object.update({
+							value: {
+								weight: Number(e.target.value),
+							},
+						});
+					}}
+				/>
+			</label>
+
+			<label>
+				<input
+					className='mr-1'
+					type='checkbox'
+					checked={data.value.flipped}
+					onChange={(e) => {
+						object.update({
+							value: {
+								flipped: e.target.checked,
+							},
+						});
+					}}
+				/>
+				Flip
+			</label>
 
 			<label>
 				<input
