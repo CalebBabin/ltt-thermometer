@@ -259,6 +259,7 @@ export default function AdminPage() {
 								type: "goal",
 								value: {
 									date: Date.now(),
+									weight: 1,
 								},
 							}}
 							objects={objects}
