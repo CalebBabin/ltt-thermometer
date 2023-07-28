@@ -85,57 +85,35 @@ class Scene extends React.Component {
 			startDate: 0,
 			endDate: 999999999,
 		}
-		this.checkForMetadata();
+		this.checkForMetadata({ data: {} });
 	}
 
-	checkForMetadata() {
-		for (const key in this.props.objects) {
-			const object = this.props.objects[key];
-
-			if (object.data.type === 'metadata') {
-				if (!this.metadataListener && typeof window !== 'undefined') {
-					this.metadataListener = function changeListener(new_data) {
-						console.log(new_data);
-						if (new_data.value.startDate) {
-							this.setState({
-								startDate: new_data.value.startDate,
-							});
-						}
-						if (new_data.value.endDate) {
-							this.setState({
-								startDate: new_data.value.endDate,
-							});
-						}
-					}
-					object.listen(this.metadataListener);
-					this.unbindListener = () => {
-						object.removeListener(this.metadataListener);
-					}
-
-					this.setState({
-						startDate: object.data.value.startDate,
-						endDate: object.data.value.endDate,
-					});
-				}
-				break;
-			}
+	checkForMetadata(event) {
+		if (!event?.value) return;
+		const data = event.value;
+		if (data.startDate) {
+			this.setState({
+				startDate: data.startDate,
+			});
+		}
+		if (data.endDate) {
+			this.setState({
+				endDate: data.endDate,
+			});
 		}
 	}
 
-	componentDidUpdate() {
-		this.checkForMetadata();
-	}
 	componentWillUnmount() {
 		if (this.metadataListener) {
-			this.unbindListener();
-			delete this.unbindListener;
-			delete this.metadataListener;
+			this.stateManager.off('globalUpdate-metadata', this.metadataListener);
 		}
 	}
 	static contextType = ConnectionContext;
 	componentDidMount() {
 		this.connection = this.context.connection;
-		this.checkForMetadata();
+		this.stateManager = this.context.stateManager;
+		this.metadataListener = this.checkForMetadata.bind(this);
+		this.stateManager.on('globalUpdate-metadata', this.metadataListener);
 	}
 
 	render() {
@@ -145,12 +123,10 @@ class Scene extends React.Component {
 			const object = this.props.objects[key];
 			objects.push(object);
 		}
-		console.log(this.state);
 
 		return (
 			<div className='w-full h-full relative'>
 				<Thermometer startDate={this.state.startDate} endDate={this.state.endDate} minMaxDiff={minMaxDiff} />
-
 				{objects.map((object) => {
 					if (renderers[object.data.type]) {
 						const Element = renderers[object.data.type];

@@ -15,9 +15,17 @@ export class StateManager {
 				if (Object.hasOwnProperty.call(data.objects, key)) {
 					this.state[key] = new Item(data.objects[key], this.connection, this);
 					this.emit('new', this.state[key]);
+
+
+					if (global_types[data.objects[key].type]) {
+						this.emit('globalUpdate-' + data.objects[key].type, {
+							...data.objects[key]
+						});
+					}
 				}
 			}
 			if (this.callback) this.callback(this.state, true);
+
 		});
 
 		this.connection.on('update', (data) => {
@@ -28,6 +36,12 @@ export class StateManager {
 				if (this.callback) this.callback(this.state);
 			} else {
 				this.state[data._id].receiveUpdate(data);
+			}
+
+			if (global_types[this.state[data._id].data.type]) {
+				this.emit('globalUpdate-' + data.type, {
+					...this.state[data._id].data,
+				});
 			}
 		});
 
@@ -53,6 +67,21 @@ export class StateManager {
 		if (!this.listeners[event]) this.listeners[event] = [];
 		callback.id = this.listenerId++;
 		this.listeners[event].push(callback);
+
+		const split = event.split('-');
+		if (split.length > 1 && split[0] === 'globalUpdate') {
+			const type = split[1];
+			if (!global_types[type]) console.warn('Unknown global type', type);
+			for (const key in this.state) {
+				if (Object.hasOwnProperty.call(this.state, key)) {
+					const element = this.state[key];
+					if (element.data.type === type) {
+						callback({ ...element.data });
+						break;
+					}
+				}
+			}
+		}
 	}
 	off(event, callback) {
 		for (let i = 0; i < this.listeners[event].length; i++) {
@@ -68,6 +97,12 @@ export class StateManager {
 			this.listeners[event][i](data);
 		}
 	}
+}
+
+// "types" of objects of which only one can exist at a time
+// used for global objects like metadata, or color configuration
+const global_types = {
+	metadata: true,
 }
 
 class Item {
@@ -161,6 +196,12 @@ class Item {
 		for (let i = 0; i < this.listeners.length; i++) {
 			const listener = this.listeners[i];
 			listener(this.data);
+		}
+
+		if (global_types[this.data.type]) {
+			this.stateManager.emit('globalUpdate-' + this.data.type, {
+				...this.data,
+			});
 		}
 		return true;
 	}

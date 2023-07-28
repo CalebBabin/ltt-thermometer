@@ -23,7 +23,6 @@ class Connection {
 		this.on('auth-success', (data) => {
 			this.authenticated = true;
 			console.log('Authenticated');
-
 		});
 
 		this.on('connected', (data) => {
