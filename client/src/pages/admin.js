@@ -66,6 +66,9 @@ const editors = {
 					}}
 				/>
 			</label>
+			<input type="range" min="0" max="10" step="0.05" value={data.value.weight || 0}
+				onChange={(e) => { object.update({ value: { weight: Number(e.target.value) } }) }}
+			/>
 
 			<label>
 				<input

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { ConnectionContext } from './connectionContext';
 import { FaCheckCircle } from 'react-icons/fa';
 
@@ -70,6 +70,31 @@ const smallTick = 'w-1/4 h-px bg-white opacity-20';
 function Thermometer({ startDate, endDate, minMaxDiff, children }) {
 	const [time, setTime] = useState(Date.now());
 	const [tickMarks, setTickMarks] = useState([]);
+	const [heat, setHeat] = useState(0);
+	const context = useContext(ConnectionContext);
+
+	useEffect(() => {
+		function stateListener(state) {
+			let running_heat = 0;
+			let max_heat = 0;
+			for (let i = 0; i < state.length; i++) {
+				const object = state[i];
+				if (object.type !== 'goal') continue;
+				if (object.value.completed) {
+					running_heat += object.value.weight || 1;
+				}
+				max_heat += object.value.weight || 1;
+			}
+			setHeat(running_heat / max_heat);
+			console.log(running_heat, max_heat);
+		}
+
+		context.stateManager.on('state-update', stateListener);
+		context.stateManager.emit('object-updated', null);
+		return () => {
+			context.stateManager.off('state-update', stateListener);
+		}
+	}, [context]);
 
 	useEffect(() => {
 		const ticks = [];
@@ -98,16 +123,26 @@ function Thermometer({ startDate, endDate, minMaxDiff, children }) {
 		}
 	}, []);
 
+	const backgroundColor = 'color-mix(in xyz, #ff4422 ' + (heat * 100) + '%, #0088ff)';
+
 	return <div style={{
 		borderRadius: '5rem',
 		height: 'calc(100% - 20rem)',
 	}} className='w-24 -ml-12 bg-slate-900 absolute top-[10%] left-[50%]'>
-		<div className='w-48 h-48 bg-red-600 text-xl lg:text-6xl flex justify-center text-center items-center absolute top-[100%] left-[50%] -mt-16 -ml-[100%] rounded-full'>
-			{Math.round(((time - startDate) / minMaxDiff) * 100)}°
+		<div className='w-48 h-48 text-xl lg:text-6xl transition-all duration-1000 flex justify-center text-center items-center absolute top-[100%] left-[50%] -mt-16 -ml-[100%] rounded-full' style={{
+			background: backgroundColor,
+		}}>
+			{Math.round(heat * 100)}°
 		</div>
 		<div className='absolute inset-0 overflow-hidden rounded-[5rem]'>
-			<div className='w-full bg-red-600 absolute bottom-0' style={{
-				height: (
+			<div className='w-full absolute bottom-0 transition-all duration-1000' style={{
+				height: heat * 100 + '%',
+				background: backgroundColor,
+			}} />
+		</div>
+		<div className='absolute inset-0 overflow-hidden rounded-[5rem]'>
+			<div className='w-full backdrop-invert h-2 absolute bottom-0' style={{
+				bottom: (
 					(time - startDate) / minMaxDiff
 				) * 100 + '%',
 			}} />

@@ -52,6 +52,14 @@ export class StateManager {
 			delete this.state[data];
 			if (this.callback) this.callback(this.state);
 		});
+
+		this.on('object-updated', (_id) => {
+			const array = [];
+			for (const key in this.state) {
+				array.push(this.state[key].data);
+			}
+			this.emit('state-update', array);
+		});
 	}
 
 	dispose() {
@@ -203,6 +211,8 @@ class Item {
 				...this.data,
 			});
 		}
+
+		this.stateManager.emit('object-updated', this._id);
 		return true;
 	}
 }
