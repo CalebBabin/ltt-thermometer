@@ -123,7 +123,7 @@ function Thermometer({ startDate, endDate, minMaxDiff, children }) {
 		}
 	}, []);
 
-	const backgroundColor = 'color-mix(in xyz, #ff4422 ' + (heat * 100) + '%, #0088ff)';
+	const backgroundColor = 'color-mix(in xyz, #ff4422 ' + (heat * 100) + '%, #dd2288)';
 
 	return <div style={{
 		borderRadius: '5rem',
