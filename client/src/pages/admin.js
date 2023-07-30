@@ -6,7 +6,7 @@ import Metadata from '@/components/metadata';
 import Scene from '@/components/scene';
 import Connection from '@/lib/connection';
 import { useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { FaTrash } from 'react-icons/fa';
+import { FaRecycle, FaTrash } from 'react-icons/fa';
 import { StateManager } from '@/lib/stateManager';
 import ConnectionRequired from '@/components/ConnectionRequired';
 import { NumberInput } from '@/components/inputs/number';
@@ -65,6 +65,9 @@ const editors = {
 						});
 					}}
 				/>
+				&nbsp;
+				&nbsp;
+				<FaRecycle onClick={() => { object.update({ value: { weight: 1 } }) }} className='inline-block text-xl cursor-pointer' />
 			</label>
 			<input type="range" min="0" max="10" step="0.05" value={data.value.weight || 0}
 				onChange={(e) => { object.update({ value: { weight: Number(e.target.value) } }) }}
