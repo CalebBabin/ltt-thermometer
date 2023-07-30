@@ -54,7 +54,7 @@ const renderers = {
 		>
 			<div className={'absolute flex items-center gap-1 ' + (data.value.flipped ? 'left-0 flex-row-reverse' : 'right-0')}>
 				<small className='opacity-50'>{months[d.getMonth()]} {d.getDate()}, {d.getFullYear()}</small>
-				<span className={data.value.completed ? 'line-through opacity-70' : ''}>
+				<span className={data.value.completed ? 'opacity-50' : ''}>
 					{data.name}
 				</span>
 				{data.value.completed && <FaCheckCircle className='inline text-green-500 text-xl' />}
