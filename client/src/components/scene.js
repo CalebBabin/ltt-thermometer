@@ -91,7 +91,6 @@ function Thermometer({ startDate, endDate, minMaxDiff, children }) {
 		}
 
 		function metadataListener(metadata) {
-			console.log(metadata);
 			if (metadata.value.minHeat) {
 				setMinHeat(metadata.value.minHeat);
 			}

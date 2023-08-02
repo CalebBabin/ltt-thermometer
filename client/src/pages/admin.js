@@ -151,7 +151,7 @@ const editors = {
 			<br />
 			Min Temperature:
 			<NumberInput
-				value={data.value.minHeat}
+				value={isNaN(data.value.minHeat) ? 0 : data.value.minHeat}
 				onChange={(e) => {
 					const value = Number(e.target.value);
 					object.update({
@@ -165,7 +165,7 @@ const editors = {
 			<br />
 			Max Temperature:
 			<NumberInput
-				value={data.value.maxHeat}
+				value={isNaN(data.value.maxHeat) ? 100 : data.value.maxHeat}
 				onChange={(e) => {
 					object.update({
 						value: {
