@@ -146,6 +146,35 @@ const editors = {
 					});
 				}
 				} />
+
+			<br />
+			<br />
+			Min Temperature:
+			<NumberInput
+				value={data.value.minHeat}
+				onChange={(e) => {
+					const value = Number(e.target.value);
+					object.update({
+						value: {
+							minHeat: Number(value),
+							maxHeat: Math.max(Number(value) + 1, data.value.maxHeat),
+						},
+					});
+				}}
+			/>
+			<br />
+			Max Temperature:
+			<NumberInput
+				value={data.value.maxHeat}
+				onChange={(e) => {
+					object.update({
+						value: {
+							minHeat: Math.min(Number(e.target.value) - 1, data.value.minHeat),
+							maxHeat: Number(e.target.value),
+						},
+					});
+				}}
+			/>
 		</div>
 	},
 }

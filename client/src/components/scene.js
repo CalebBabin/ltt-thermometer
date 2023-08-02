@@ -71,6 +71,8 @@ function Thermometer({ startDate, endDate, minMaxDiff, children }) {
 	const [time, setTime] = useState(Date.now());
 	const [tickMarks, setTickMarks] = useState([]);
 	const [heat, setHeat] = useState(0);
+	const [minHeat, setMinHeat] = useState(0);
+	const [maxHeat, setMaxHeat] = useState(100);
 	const context = useContext(ConnectionContext);
 
 	useEffect(() => {
@@ -86,8 +88,19 @@ function Thermometer({ startDate, endDate, minMaxDiff, children }) {
 				max_heat += object.value.weight || 1;
 			}
 			setHeat(running_heat / max_heat);
-			console.log(running_heat, max_heat);
 		}
+
+		function metadataListener(metadata) {
+			console.log(metadata);
+			if (metadata.value.minHeat) {
+				setMinHeat(metadata.value.minHeat);
+			}
+			if (metadata.value.maxHeat) {
+				setMaxHeat(metadata.value.maxHeat);
+			}
+		}
+
+		context.stateManager.on('globalUpdate-metadata', metadataListener);
 
 		context.stateManager.on('state-update', stateListener);
 		context.stateManager.emit('object-updated', null);
@@ -132,7 +145,7 @@ function Thermometer({ startDate, endDate, minMaxDiff, children }) {
 		<div className='w-48 h-48 text-xl lg:text-6xl transition-all duration-1000 flex justify-center text-center items-center absolute top-[100%] left-[50%] -mt-16 -ml-[100%] rounded-full' style={{
 			background: backgroundColor,
 		}}>
-			{Math.round(heat * 100)}°
+			{(heat * (maxHeat - minHeat) + minHeat).toFixed(1)}°
 		</div>
 		<div className='absolute inset-0 overflow-hidden rounded-[5rem]'>
 			<div className='w-full absolute bottom-0 transition-all duration-1000' style={{
