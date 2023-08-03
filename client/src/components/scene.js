@@ -141,7 +141,7 @@ function Thermometer({ startDate, endDate, minMaxDiff, children }) {
 		borderRadius: '5rem',
 		height: 'calc(100% - 20rem)',
 	}} className='w-24 -ml-12 bg-slate-900 absolute top-[10%] left-[50%]'>
-		<div className='w-48 h-48 text-xl lg:text-6xl transition-all duration-1000 flex justify-center text-center items-center absolute top-[100%] left-[50%] -mt-16 -ml-[100%] rounded-full' style={{
+		<div className='w-48 h-48 text-2xl sm:text-4xl lg:text-7xl transition-all duration-1000 flex justify-center text-center items-center absolute top-[100%] left-[50%] -mt-16 -ml-[100%] rounded-full' style={{
 			background: backgroundColor,
 		}}>
 			{(heat * (maxHeat - minHeat) + minHeat).toFixed(1)}°
