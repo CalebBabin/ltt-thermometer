@@ -102,7 +102,7 @@ function Thermometer({ children, metadata }) {
 
 	useEffect(() => {
 		const ticks = [];
-		const tickCount = 12;
+		const tickCount = 10;
 		for (let i = 0; i < tickCount; i++) {
 			const tickTime = startDate.getTime() + (minMaxDiff - (minMaxDiff) * (i / tickCount));
 			const tickDate = new Date(tickTime);
