@@ -323,6 +323,8 @@ export default function AdminPage() {
 								value: {
 									startDate: Date.now(),
 									endDate: Date.now() + 1000 * 60 * 60 * 24 * 7,
+									minHeat: 0,
+									maxHeat: 100,
 								},
 							}}
 							objects={objects}
