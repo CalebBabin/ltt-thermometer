@@ -146,17 +146,10 @@ function Thermometer({ startDate, endDate, minMaxDiff, children }) {
 		}}>
 			{(heat * (maxHeat - minHeat) + minHeat).toFixed(1)}°
 		</div>
-		<div className='absolute inset-0 overflow-hidden rounded-[5rem]'>
+		<div className='absolute inset-0 overflow-hidden rounded-t-[5rem]'>
 			<div className='w-full absolute bottom-0 transition-all duration-1000' style={{
 				height: heat * 100 + '%',
 				background: backgroundColor,
-			}} />
-		</div>
-		<div className='absolute inset-0 overflow-hidden rounded-[5rem]'>
-			<div className='w-full backdrop-invert h-2 absolute bottom-0' style={{
-				bottom: (
-					(time - startDate) / minMaxDiff
-				) * 100 + '%',
 			}} />
 		</div>
 		<div className='z-10 absolute inset-4 items-center flex flex-col justify-between rounded-t-[5rem] overflow-hidden'>
@@ -164,6 +157,13 @@ function Thermometer({ startDate, endDate, minMaxDiff, children }) {
 		</div>
 		<div className='absolute w-full top-12 bottom-12'>
 			{children}
+		</div>
+		<div className='absolute inset-0 z-10 overflow-hidden rounded-t-[5rem]'>
+			<div className='w-full backdrop-invert h-1 rounded-lg absolute bottom-0' style={{
+				bottom: (
+					(time - startDate) / minMaxDiff
+				) * 100 + '%',
+			}} />
 		</div>
 	</div>;
 }
