@@ -18,7 +18,7 @@ const months = [
 ]
 
 const renderers = {
-	goal: ({ object, startDate, endDate, minMaxDiff }) => {
+	goal: ({ object, metadata }) => {
 		const [data, setData] = useState(object.data);
 		useEffect(() => {
 			if (typeof window === 'undefined') return;
@@ -36,7 +36,7 @@ const renderers = {
 		const d = new Date(data.value.date);
 		const style = {
 			bottom: (
-				(data.value.date - startDate) / minMaxDiff
+				(data.value.date - metadata?.startDate) / (metadata?.endDate - metadata?.startDate)
 			) * 100 + '%',
 		}
 		if (data.value.flipped) {
@@ -46,7 +46,7 @@ const renderers = {
 		}
 
 		return <div
-			className='my-4 px-2 absolute overflow-visible whitespace-pre cursor-pointer'
+			className='my-4 px-2 absolute overflow-visible whitespace-pre cursor-pointer transition-all duration-300'
 			style={style}
 			onClick={() => {
 				window.dispatchEvent(new CustomEvent('select-' + object._id));
@@ -67,13 +67,16 @@ const renderers = {
 const bigTick = 'w-full h-px bg-white opacity-50';
 const smallTick = 'w-1/4 h-px bg-white opacity-20';
 
-function Thermometer({ startDate, endDate, minMaxDiff, children }) {
+function Thermometer({ children, metadata }) {
 	const [time, setTime] = useState(Date.now());
 	const [tickMarks, setTickMarks] = useState([]);
 	const [heat, setHeat] = useState(0);
-	const [minHeat, setMinHeat] = useState(0);
-	const [maxHeat, setMaxHeat] = useState(100);
 	const context = useContext(ConnectionContext);
+
+	const { minHeat, maxHeat } = metadata;
+	const startDate = new Date(metadata.startDate);
+	const endDate = new Date(metadata.endDate);
+	const minMaxDiff = metadata.endDate - metadata.startDate;
 
 	useEffect(() => {
 		function stateListener(state) {
@@ -90,17 +93,6 @@ function Thermometer({ startDate, endDate, minMaxDiff, children }) {
 			setHeat(running_heat / max_heat);
 		}
 
-		function metadataListener(metadata) {
-			if (metadata.value.minHeat) {
-				setMinHeat(metadata.value.minHeat);
-			}
-			if (metadata.value.maxHeat) {
-				setMaxHeat(metadata.value.maxHeat);
-			}
-		}
-
-		context.stateManager.on('globalUpdate-metadata', metadataListener);
-
 		context.stateManager.on('state-update', stateListener);
 		context.stateManager.emit('object-updated', null);
 		return () => {
@@ -112,7 +104,7 @@ function Thermometer({ startDate, endDate, minMaxDiff, children }) {
 		const ticks = [];
 		const tickCount = 12;
 		for (let i = 0; i < tickCount; i++) {
-			const tickTime = startDate + (minMaxDiff - (minMaxDiff) * (i / tickCount));
+			const tickTime = startDate.getTime() + (minMaxDiff - (minMaxDiff) * (i / tickCount));
 			const tickDate = new Date(tickTime);
 			ticks.push(<div key={i} className='flex flex-col justify-around items-center w-full h-full'>
 				<div className={bigTick} />
@@ -124,7 +116,7 @@ function Thermometer({ startDate, endDate, minMaxDiff, children }) {
 			</div>)
 		}
 		setTickMarks(ticks);
-	}, [startDate, endDate, minMaxDiff]);
+	}, [metadata]);
 
 	useEffect(() => {
 		const interval = setInterval(() => {
@@ -174,8 +166,7 @@ class Scene extends React.Component {
 		super(props);
 
 		this.state = {
-			startDate: 0,
-			endDate: 999999999,
+			metadata: {},
 		}
 		this.checkForMetadata({ data: {} });
 	}
@@ -183,16 +174,7 @@ class Scene extends React.Component {
 	checkForMetadata(event) {
 		if (!event?.value) return;
 		const data = event.value;
-		if (data.startDate) {
-			this.setState({
-				startDate: data.startDate,
-			});
-		}
-		if (data.endDate) {
-			this.setState({
-				endDate: data.endDate,
-			});
-		}
+		this.setState({ metadata: data });
 	}
 
 	componentWillUnmount() {
@@ -218,16 +200,14 @@ class Scene extends React.Component {
 
 		return (
 			<div className='w-full h-full relative'>
-				<Thermometer startDate={this.state.startDate} endDate={this.state.endDate} minMaxDiff={minMaxDiff}>
+				<Thermometer metadata={this.state.metadata}>
 					{objects.map((object) => {
 						if (renderers[object.data.type]) {
 							const Element = renderers[object.data.type];
 							return <Element
 								object={object}
-								startDate={this.state.startDate}
-								endDate={this.state.endDate}
-								minMaxDiff={minMaxDiff}
 								key={object._id}
+								metadata={this.state.metadata}
 							/>
 						} else {
 							return <span key={object._id} />;
